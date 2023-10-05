@@ -1,0 +1,127 @@
+<nav>
+  <div class="site-title">
+    <a href="/">
+      <h1>My Study Buddy</h1>
+    </a>
+    <% if (language==='en' ) { %>
+      <p>AI powered learning tool</p>
+      <% } else if (language==='de' ) { %>
+        <p>KI-gestütztes Lerntool</p>
+        <% } %>
+  </div>
+  <select id="language-select">
+    <% if (language==='en' ) { %>
+      <option value="en" selected>English</option>
+      <option value="de">Deutsch</option>
+      <% } else if (language==='de' ) { %>
+        <option value="en">English</option>
+        <option value="de" selected>Deutsch</option>
+        <% } %>
+  </select>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <% if (language==='en' ) { %>
+      <li><a href="/help">Help</a></li>
+      <li><a href="/about">About</a></li>
+      <% } else if (language==='de' ) { %>
+        <li><a href="/help">Hilfe</a></li>
+        <li><a href="/about">Über uns</a></li>
+        <% } %>
+          <% if (language==='en' ) { %>
+            <% if (user) { %>
+              <li><a href="/logout">Log out</a></li>
+              <% } else { %>
+                <li><a href="/login">Sign in</a></li>
+                <% } %>
+                  <% } else if (language==='de' ) { %>
+                    <% if (user) { %>
+                      <li><a href="/logout">Ausloggen</a></li>
+                      <% } else { %>
+                        <li><a href="/login">Einloggen</a></li>
+                        <% } %>
+                          <% } %>
+
+  </ul>
+  <select id="mobile-nav">
+    <option value="/chat">Home</option>
+    <% if (language==='en' ) { %>
+      <option value="/help">Help</option>
+      <option value="/about">About</option>
+      <% if (user) { %>
+        <option value="/logout">Log out</option>
+        <% } else { %>
+          <option value="/login">Sign in</option>
+          <% } %>
+            <% } else if (language==='de' ) { %>
+              <option value="/help">Hilfe</option>
+              <option value="/about">Über uns</option>
+              <% if (user) { %>
+                <option value="/logout">Ausloggen</option>
+                <% } else { %>
+                  <option value="/login">Einloggen</option>
+                  <% } %>
+                    <% } %>
+                      <option disabled>─────────</option>
+                      <!-- Language Selection -->
+                      <option value="en" <% if (language==='en' ) { %>selected<% } %>>🌐 English</option>
+                      <option value="de" <% if (language==='de' ) { %>selected<% } %>>🌐 Deutsch</option>
+  </select>
+</nav>
+<script>
+  const languageSelect = document.getElementById('language-select');
+
+  languageSelect.addEventListener('change', async () => {
+    const selectedLanguage = languageSelect.value;
+    const path = window.location.pathname;
+
+    try {
+      const response = await fetch('/language', {
+        method: 'POST',
+        body: JSON.stringify({ path, selectedLanguage }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        await window.location.reload();
+      } else {
+        console.error('Language change request failed.');
+      }
+    } catch (error) {
+      console.error('Error occurred:', error);
+    }
+  });
+
+  const currentUrl = window.location.pathname;
+  const mobileNav = document.getElementById('mobile-nav');
+  for (let option of mobileNav.options) {
+    if (option.value === currentUrl || '/chat' === currentUrl || '/' === currentUrl) {
+      option.selected = true;
+      break;
+    }
+  }
+  mobileNav.addEventListener('change', async () => {
+    const selectedValue = mobileNav.value;
+    if (selectedValue.length == 2) {
+      const path = window.location.pathname;
+      const selectedLanguage = selectedValue; // Get the selected language from selectedValue
+      try {
+        const response = await fetch('/language', {
+          method: 'POST',
+          body: JSON.stringify({ path, selectedLanguage }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+          await window.location.reload();
+        } else {
+          console.error('Language change request failed.');
+        }
+      } catch (error) {
+        console.error('Error occurred:', error);
+      }
+    } else {
+      window.location.href = selectedValue; // Redirect to the selected URL
+    }
+  });
+
+</script>

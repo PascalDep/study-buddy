@@ -1,0 +1,74 @@
+<html lang="en">
+<%- include("./partials/head.ejs") %>
+
+  <body>
+    <%- include("./partials/nav.ejs") %>
+
+      <form id="form" action="/signup" class="signup-form">
+        <% if (language==='en' ) { %>
+          <h2>Welcome! Log in to start using the chat.</h2>
+          <% } else if (language==='de' ) { %>
+            <h2>Willkommen! Melde dich an, um zu chatten.</h2>
+            <% } %>
+              <label>Email</label>
+              <input type="email" name="email" required>
+              <div class="email error"></div>
+              <% if (language==='en' ) { %>
+                <label>Password</label>
+                <% } else if (language==='de' ) { %>
+                  <label>Passwort</label>
+                  <% } %>
+                    <input type="password" name="password" required>
+                    <div class="password error"></div>
+                    <div class="create-account">
+                      <% if (language==='en' ) { %>
+                        <button type="submit" class="button">login</button>
+                        <a id="create-account" href="/signup">create account</a>
+                        <% } else if (language==='de' ) { %>
+                          <button type="submit" class="button">einloggen</button>
+                          <a id="create-account" href="/signup">konto erstellen</a>
+                          <% } %>
+                    </div>
+      </form>
+      <%- include("./partials/footer.ejs") %>
+  </body>
+  <script>
+    const form = document.getElementById('form');
+    const emailError = document.querySelector('.email.error');
+    const passwordError = document.querySelector('.password.error');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // reset errors
+      emailError.textContent = '';
+      passwordError.textContent = '';
+
+      // get values
+      const email = form.email.value;
+      const password = form.password.value;
+
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        console.log(data);
+        if (data.errors) {
+          emailError.textContent = data.errors.email;
+          passwordError.textContent = data.errors.password;
+        }
+        if (data.user) {
+          location.assign('/');
+        }
+      }
+      catch (err) {
+        console.log(err);
+      }
+
+    });
+  </script>
+
+</html>

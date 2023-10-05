@@ -1,0 +1,127 @@
+<html lang="en">
+<%- include("./partials/head.ejs") %>
+
+  <body>
+    <%- include("./partials/nav.ejs") %>
+      <form class="subject-topic-input" action="/chat" method="POST" id="topicForm">
+        <select id="subject" name="subject" <% if (subject !=='' ) { %>disabled<% } %> required>
+            <option value="<%= subject %>" <% if (subject !=='' ) { %>selected<% } %>><%= subject !=='' ? subject :
+                  (language==='de' ? 'Schulfach' : 'Subject' ) %>
+            </option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="English">English</option>
+            <option value="History">History</option>
+            <option value="Math">Math</option>
+        </select>
+        <input type="text" maxlength="64" id="topic" name="topic"
+          placeholder="<%= language === 'de' ? 'Thema' : 'Topic' %>" required <% if (topic !=='' ) { %>disabled<% } %>
+          value="<%= topic !=='' ? topic : '' %>">
+            <button type="submit" id="topicButton">
+              <%= topic !=='' ? (language==='de' ? 'Neu' : 'New' ) : (language==='de' ? "Los geht's" : "Let's Go" ) %>
+            </button>
+      </form>
+      <div class="content">
+        <div class="chatHistory">
+          <div class="historyButton">
+            <% if (chatHistory.length> 0) { %>
+              <% chatHistory.forEach(entry=> { %>
+                <button class="session-button" data-sessionid="<%= entry.sessionID %>">
+                  <%= entry.subject %> - <%= entry.topic %>
+                </button>
+                <% }); %>
+                  <% } %>
+          </div>
+        </div>
+        <div class="chatContainer content">
+          <div class="chatLog" id="chatLog">
+            <% if (chatLog.length> 0) { %>
+              <% let firstUserEntrySkipped=false; %>
+                <% chatLog.forEach(entry=> { %>
+                  <% if (entry.role==='user' && !firstUserEntrySkipped) { %>
+                    <% firstUserEntrySkipped=true; %>
+                      <% } else if (entry.role==='user' ) { %>
+                        <p class="input"><%= entry.content %></p>
+                        <% } else if (entry.role !=='system' ) { %>
+                          <p class="answer"><%= entry.content %></p>
+                          <% } %>
+                            <% }); %>
+                              <% } %>
+                                <div class="loading-dots">
+                                  <div class="dot"></div>
+                                  <div class="dot"></div>
+                                  <div class="dot"></div>
+                                </div>
+          </div>
+          <form id="chatForm" action="/chat" method="POST">
+            <input type="text" maxlength="256" id="input" name="input"
+              placeholder="<%= language === 'de' ? 'Frag mich hier...' : 'Ask me here...' %>" required <% if (topic===''
+              ) { %>disabled<% } %>>
+              <button type="submit" id="chatButton" class="button" <% if (topic==='' ) { %>disabled<% } %>> <%=
+                    language==='de' ? 'Senden' : 'Send' %>
+              </button>
+          </form>
+        </div>
+      </div>
+      <%- include("./partials/footer.ejs") %>
+  </body>
+  <script>
+    window.onload = function () {
+      document.getElementById('input').focus();
+      const chatLog = document.getElementById('chatLog');
+      chatLog.scrollTop = chatLog.scrollHeight;
+    };
+    const topicInput = document.getElementById('topicForm');
+    const chatInput = document.getElementById('chatForm');
+    topicInput.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const loadingDots = document.querySelector('.loading-dots');
+      loadingDots.style.display = 'block';
+      this.submit();
+      disableFormElements(this);
+    });
+
+    chatInput.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const loadingDots = document.querySelector('.loading-dots');
+      loadingDots.style.display = 'block';
+      this.submit();
+      disableFormElements(this);
+    });
+
+    function disableFormElements(form) {
+      const elements = form.elements;
+      for (let i = 0; i < elements.length; i++) {
+        elements[i].disabled = true;
+      }
+    }
+
+    // Get all buttons with the class 'session-button'
+    const sessionButtons = document.querySelectorAll('.session-button');
+
+    sessionButtons.forEach(button => {
+      button.addEventListener('click', async () => {
+        disableFormElements(topicInput);
+        disableFormElements(chatInput);
+        const sessionID = button.getAttribute('data-sessionid');
+
+        try {
+          const res = await fetch('/chat/lookup', {
+            method: 'POST',
+            body: JSON.stringify({ sessionID }), // Pass sessionID to the server
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const data = await res.json();
+          console.log(data);
+          if (data.session) {
+            location.assign('/chat');
+          } else {
+            console.error(`Couldn't find chat`);
+          }
+        } catch (err) {
+          console.error('An error occurred:', err);
+        }
+      });
+    });
+
+  </script>
+</html>
