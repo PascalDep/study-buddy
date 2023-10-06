@@ -3,6 +3,7 @@ import UserModel from '../models/user.js';
 import ChatHistoryModel from '../models/chatHistory.js';
 import jwt from 'jsonwebtoken';
 const signupKey = 'Taiwan'
+const maxChatLogEntries = 128;
 const chatLog = [];
 const chatHistory = [];
 let curSession = -1;
@@ -38,6 +39,11 @@ export const chat_post = async (req, res) => {
     if (Object.keys(req.body).length === 0) {
         return res.redirect('/');
     }
+
+    if (chatLog.length >= maxChatLogEntries) {
+        chatLog.shift();
+    }
+
     if (curSession < 0) {
         subject = req.body.subject;
         topic = req.body.topic;
@@ -51,7 +57,7 @@ export const chat_post = async (req, res) => {
             topic = '';
             subject = '';
         } else {
-            addToChatHistory(req, subject, topic);
+            await addToChatHistory(req, subject, topic);
         }
     } else if (curSession >= 0) {
         chatLog.push({
@@ -62,7 +68,7 @@ export const chat_post = async (req, res) => {
         const answer = await chatModel.generateAnswer(chatLog);
         chatLog.push(answer);
 
-        addToChatHistory(req, subject, topic);
+        await addToChatHistory(req, subject, topic);
     }
     res.redirect('/chat');
 };
@@ -104,12 +110,14 @@ export const login_get = (req, res) => {
     res.render('login', { title: 'Log In', language });
 }
 
+let keyAttempts = 0; // change later --------------------------
 export const signup_post = async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const key = req.body.key;
     // Change later -------------------------------
     if (key === signupKey) {
+        keyAttempts = 0;
         try {
             const user = await UserModel.create({ email, password });
             const token = createToken(user._id);
@@ -121,9 +129,17 @@ export const signup_post = async (req, res) => {
             res.status(400).json({ errors });
         }
     } else {
-        let errors = { email: '', password: '' };
-        errors.email = 'Wrong access-key. Account not created!';
-        res.status(400).json({ errors });
+        keyAttempts++
+        if (keyAttempts < 10) {
+            let errors = { email: '', password: '' };
+            errors.email = 'Wrong access-key. Account not created!';
+            res.status(400).json({ errors });
+        } else {
+            let errors = { email: '', password: '' };
+            errors.email = 'Too many wrong attempts! Try again tomorrow';
+            res.status(400).json({ errors });
+        }
+
     }
 }
 
