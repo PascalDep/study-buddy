@@ -35,7 +35,7 @@ export const checkTopic = async (req, language) => {
         } else if (language === 'de') {
             chatHistory.push({
                 role: 'system',
-                content: `Du bist ein erfahrener Fachkollege, der keine Ablenkungen mag. 
+                content: `Du bist ein erfahrener Mitschüler, der keine Ablenkungen mag. 
                 Hilf mir, meine Zone der proximalen Entwicklung zu erkunden, indem du mein Wissen aufbaust und dich auf das Thema konzentrierst.`
             });
             chatHistory.push({
@@ -51,7 +51,7 @@ export const checkTopic = async (req, language) => {
         chatHistory.push(chatCompletion.choices[0].message); */
         chatHistory.push({
             role: 'assist',
-            content: `This are the eval questionns\n1 and 2`
+            content: `*** Placeholder ***\nEvaluation questions will appear here`
         });
     } else {
         if (language === 'en') {
@@ -78,7 +78,7 @@ export const generateAnswer = async (chatLog) => {
 chatLog.push(chatCompletion.choices[0].message); */
     const answer = {
         role: 'assistant',
-        content: 'Normal Answer'
+        content: '*** Placeholder *** Study Buddy answered'
     }
     return answer;
 };
