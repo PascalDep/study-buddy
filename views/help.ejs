@@ -3,197 +3,201 @@
 
   <body>
     <%- include("./partials/nav.ejs") %>
+      <div class="body-container">
+        <aside class="sidebar">
+          <ul class="sidebar-links">
+            <li><a href="#getting-started">Getting Started</a></li>
+            <li><a href="#subjects-topics">Subjects and Topics</a></li>
+            <li><a href="#sending-messages">Sending Messages</a></li>
+            <li><a href="#chat-log">Chat Log</a></li>
+            <li><a href="#tips">Tips for a Great Chat Experience</a></li>
+            <li><a href="#additional-features">Additional Features</a></li>
+            <li><a href="#need-help">Need Help?</a></li>
+          </ul>
+        </aside>
 
-      <% if (language==='en' ) { %>
-        <section id="help-section">
-          <h2>Welcome to the Chat Interface Help</h2>
-
-          <div id="getting-started">
-            <h3>Getting Started</h3>
-            <p>Welcome to our chat interface! It's designed to help you get the most out of your learning experience.
-              Below, you'll find a quick guide on how to use this platform effectively.</p>
-          </div>
-
-          <div id="subjects-topics">
-            <h3>Subjects and Topics</h3>
-            <p>
-              <strong>Subjects</strong>: Start by selecting a subject that interests you. We offer a range of subjects,
-              including Math, Science, History, and English. Choose the subject you'd like to discuss.
-            </p>
-            <p>
-              <strong>Topics</strong>: Next, enter a topic related to your selected subject. This can be a specific
-              question, concept, or idea you want to explore.
-            </p>
-          </div>
-
-          <div id="sending-messages">
-            <h3>Sending Messages</h3>
-            <p>
-              <strong>Input Box</strong>: Once you've selected a subject and entered a topic, you can start sending
-              messages. Type your message in the input box at the bottom of the chat interface.
-            </p>
-            <p>
-              <strong>Sending Messages</strong>: Click the "Send" button to submit your message. It will appear in the
-              chat log, and other users can respond.
-            </p>
-          </div>
-
-          <div id="chat-log">
-            <h3>Chat Log</h3>
-            <p>
-              <strong>Chat History</strong>: The chat log displays all the messages in the conversation. You'll see your
-              messages in blue and responses from others in green. System messages may appear in gray.
-            </p>
-            <p>
-              <strong>Scrolling</strong>: If the chat history becomes too long, you can scroll up and down to view
-              previous messages.
-            </p>
-          </div>
-
-          <div id="tips">
-            <h3>Tips for a Great Chat Experience</h3>
-            <p>
-              <strong>Be Courteous</strong>: Please be respectful of others in the chat. Treat everyone with kindness
-              and
-              keep discussions focused on the subject.
-            </p>
-            <p>
-              <strong>Stay on Topic</strong>: Try to keep your messages related to the subject and topic you've chosen.
-              This helps maintain meaningful conversations.
-            </p>
-            <p>
-              <strong>Ask Questions</strong>: If you're unsure about something or need clarification, don't hesitate to
-              ask questions. Our community is here to help you learn!
-            </p>
-          </div>
-
-          <div id="additional-features">
-            <h3>Additional Features</h3>
-            <p>
-              <strong>Deleting Messages</strong>: You can delete your messages by clicking the "Delete" button next to
-              them. This action can't be undone.
-            </p>
-            <p>
-              <strong>Refreshing the Page</strong>: If you encounter any issues, try refreshing the page to reset the
-              chat
-              interface.
-            </p>
-            <p>
-              <strong>Navigation</strong>: You can navigate through different subjects and topics using the dropdown
-              menus. This allows you to explore various areas of interest.
-            </p>
-          </div>
-
-          <div id="need-help">
-            <h3>Need Help?</h3>
-            <p>If you have any questions or encounter technical issues, please reach out to our support team through the
-              contact information provided on the website. We're here to assist you in making your learning experience
-              enjoyable and productive.</p>
-            <p>Happy chatting!</p>
-          </div>
-        </section>
-        <% } else if (language==='de' ) { %>
-          <section id="help-section">
-            <h2>Willkommen bei der Chat-Interface-Hilfe</h2>
+        <% if (language==='en' ) { %>
+          <section id="help-section" class="help-section">
+            <h2>How to Use Study Buddy</h2>
 
             <div id="getting-started">
-              <h3>Erste Schritte</h3>
-              <p>Willkommen bei unserem Chat-Interface! Es wurde entwickelt, um Ihnen das Beste aus Ihrem Lernerlebnis
-                zu
-                ermöglichen. Nachfolgend finden Sie eine kurze Anleitung zur effektiven Nutzung dieser Plattform.</p>
+              <h3>Getting Started</h3>
+              <p>Welcome to Study Buddy! Our chat interface is designed to enhance your learning experience. Here's a
+                quick guide to help you get started.</p>
+
             </div>
 
             <div id="subjects-topics">
-              <h3>Fächer und Themen</h3>
+              <h3>Subjects and Topics</h3>
               <p>
-                <strong>Fächer</strong>: Beginnen Sie, indem Sie ein Fach auswählen, das Sie interessiert. Wir bieten
-                eine
-                Vielzahl von Fächern an, darunter Mathematik, Naturwissenschaften, Geschichte und Englisch. Wählen Sie
-                das Fach
-                aus, über das Sie sprechen möchten.
+                <strong>Subjects:</strong> Begin by selecting the subject that interests you. This helps Study Buddy
+                understand the context of the conversation.
               </p>
               <p>
-                <strong>Themen</strong>: Geben Sie als Nächstes ein Thema ein, das sich auf Ihr ausgewähltes Fach
-                bezieht. Dies
-                kann eine spezifische Frage, ein Konzept oder eine Idee sein, die Sie erkunden möchten.
+                <strong>Topics:</strong> Next, enter a topic related to your subject. This can be a specific question,
+                concept, or idea you want to explore.
+              </p>
+              <p>
+                <strong>Example:</strong><br>If you've selected "Chemistry" as your subject, your topic could be
+                "Chemical Reactions"
+                or "Periodic Table Trends." <br>However, you can also have more specific topics like, "How do chemical
+                reactions
+                occur?" or "What are the properties of elements in Group 18?"
               </p>
             </div>
 
             <div id="sending-messages">
-              <h3>Nachrichten senden</h3>
+              <h3>Chatting with Study Buddy</h3>
               <p>
-                <strong>Eingabefeld</strong>: Nachdem Sie ein Fach ausgewählt und ein Thema eingegeben haben, können Sie
-                Nachrichten senden. Geben Sie Ihre Nachricht im Eingabefeld am unteren Rand des Chat-Interfaces ein.
-              </p>
-              <p>
-                <strong>Nachrichten senden</strong>: Klicken Sie auf die Schaltfläche "Senden", um Ihre Nachricht
-                abzuschicken.
-                Sie wird im Chatverlauf angezeigt, und andere Benutzer können antworten.
+                Once you've selected a subject and entered a topic, you can start sending messages to Study Buddy.
+                Simply type your message in the input box at the bottom of the chat interface and hit the "Send" button.
+                Your message will appear in the chat log, and Study Buddy will respond as soon as possible.
               </p>
             </div>
 
             <div id="chat-log">
-              <h3>Chatverlauf</h3>
+              <h3>Chat History</h3>
               <p>
-                <strong>Chatverlauf</strong>: Der Chatverlauf zeigt alle Nachrichten in der Konversation an. Ihre
-                Nachrichten
-                sind blau und Antworten von anderen sind grün. Systemnachrichten können in grauer Farbe erscheinen.
-              </p>
-              <p>
-                <strong>Scrollen</strong>: Wenn der Chatverlauf zu lang wird, können Sie nach oben und unten scrollen,
-                um
-                frühere Nachrichten anzuzeigen.
+                Your previous chat sessions with Study Buddy are displayed on the left-hand side of the chat window for
+                your reference.
               </p>
             </div>
-
+            <div id="start-chatting">
+              <h3>Start Chatting</h3>
+              <p>
+                Ready to get started? Here's how to begin chatting with Study Buddy:
+              </p>
+              <ol>
+                <li><strong>Select a Subject:</strong> Choose the subject that is closest to your inquiry.</li>
+                <li><strong>Type in the Topic:</strong> Tell Study Buddy what you want to learn about. You can be
+                  specific or enter a more general topic.
+                  <ul>
+                    <em><br>Study Buddy will ask you a few questions to understand how much you already know about the
+                      topic.</em>
+                  </ul>
+                </li><br>
+                <li><strong>Reply to Study Buddy's questions:</strong> Locate the input box at the bottom of the chat
+                  interface and try to answer the questions. Don't worry if you are correct or not; your answers are
+                  used to evaluate your current knowledge. “I don't know” is a perfectly fine answer too!
+                  <ul>
+                    <em><br>Study Buddy will now engage in the conversation with you. Treat Study Buddy like your
+                      classmate.</em>
+                  </ul>
+                </li><br>
+                <li><strong>Chat with Study Buddy:</strong> Interact with Study Buddy by asking questions, sharing your
+                  thoughts, or seeking help with specific topics. Compose your message and click the "Send" button. Your
+                  message will be sent to Study Buddy and will appear in the chat log.
+                  <ul>
+                    <em><br>After hitting the "Send" button, Study Buddy will respond promptly. You can continue the
+                      conversation by typing and sending more messages.</em>
+                  </ul>
+                </li><br>
+              </ol>
+            </div>
             <div id="tips">
-              <h3>Tipps für ein tolles Chat-Erlebnis</h3>
-              <p>
-                <strong>Höflichkeit</strong>: Bitte seien Sie respektvoll gegenüber anderen im Chat. Behandeln Sie alle
-                mit
-                Freundlichkeit und halten Sie die Diskussionen auf das Fachthema ausgerichtet.
-              </p>
-              <p>
-                <strong>Am Thema bleiben</strong>: Versuchen Sie, Ihre Nachrichten im Zusammenhang mit dem ausgewählten
-                Fach und
-                Thema zu halten. Dies trägt zu sinnvollen Gesprächen bei.
-              </p>
-              <p>
-                <strong>Fragen stellen</strong>: Wenn Sie unsicher sind oder Klarstellungen benötigen, zögern Sie nicht,
-                Fragen
-                zu stellen. Unsere Community steht Ihnen zur Unterstützung beim Lernen zur Verfügung!
-              </p>
-            </div>
-
-            <div id="additional-features">
-              <h3>Zusätzliche Funktionen</h3>
-              <p>
-                <strong>Nachrichten löschen</strong>: Sie können Ihre Nachrichten löschen, indem Sie auf die
-                Schaltfläche
-                "Löschen" neben ihnen klicken. Diese Aktion kann nicht rückgängig gemacht werden.
-              </p>
-              <p>
-                <strong>Seite aktualisieren</strong>: Wenn Sie auf Probleme stoßen, versuchen Sie, die Seite neu zu
-                laden, um
-                das Chat-Interface zurückzusetzen.
-              </p>
-              <p>
-                <strong>Navigation</strong>: Sie können durch verschiedene Fächer und Themen navigieren, indem Sie die
-                Dropdown-Menüs verwenden. Dies ermöglicht es Ihnen, verschiedene Interessensgebiete zu erkunden.
-              </p>
-            </div>
-
-            <div id="need-help">
-              <h3>Brauchen Sie Hilfe?</h3>
-              <p>Wenn Sie Fragen haben oder technische Probleme auftreten, wenden Sie sich bitte an unser Support-Team
-                über die
-                auf der Website angegebenen Kontaktinformationen. Wir sind hier, um Ihnen bei der Gestaltung Ihres
-                Lernerlebnisses zu helfen und es produktiv und angenehm zu gestalten.</p>
-              <p>Viel Spaß beim Chatten!</p>
+              <h3>Tips for a Great Chat Experience</h3>
+              <ul>
+                <li><strong>Stay on Topic:</strong> Keep your messages related to the selected subject and topic to
+                  maintain meaningful conversations.</li>
+                <li><strong>Ask Questions:</strong> If you're unsure or need clarification, don't hesitate to ask
+                  questions. Study Buddy is here to help and never gets tired.</li>
+              </ul>
+              <p>Happy chatting!</p>
             </div>
           </section>
-          <% } %>
-            <%- include("./partials/footer.ejs") %>
+          <% } else if (language==='de' ) { %>
+            <section id="help-section" class="help-section">
+              <h2>Wie man Study Buddy verwendet</h2>
+              <div id="getting-started">
+                <h3>Erste Schritte</h3>
+                <p>Willkommen bei Study Buddy! Unsere Chat-Schnittstelle wurde entwickelt, um dein Lernerlebnis zu
+                  verbessern. Hier ist eine kurze Anleitung, um dir den Einstieg zu erleichtern.</p>
+              </div>
+              <div id="subjects-topics">
+                <h3>Fächer und Themen</h3>
+                <p>
+                  <strong>Fächer:</strong> Wähle zu Beginn das Fach aus, das dich interessiert. Das hilft Study
+                  Buddy, den Kontext eurer Unterhaltung zu verstehen.
+                </p>
+                <p>
+                  <strong>Themen:</strong> Gib als Nächstes ein Thema ein, das zu dem gewählten Fach passt. Das kann
+                  eine
+                  spezifische Frage, ein Konzept oder eine Idee sein, über die du mehr erfahren möchtest.
+                </p>
+                <p>
+                  <strong>Beispiel:</strong><br> Wenn du "Chemie" als dein Fach ausgewählt hast, könnte dein Thema
+                  "Chemische Reaktionen" oder "Periodensystem-Trends" sein.<br> Du kannst jedoch auch spezifischere
+                  Themen haben wie "Wie erfolgen chemische Reaktionen?" oder "Was sind die Eigenschaften der Elemente in
+                  der Gruppe 18?"
+                </p>
+              </div>
+              <div id="sending-messages">
+                <h3>Chatten mit Study Buddy</h3>
+                <p>
+                  Sobald du ein Fach ausgewählt und ein Thema eingegeben hast, kannst du Nachrichten an Study Buddy
+                  senden. Tippe einfach deine Nachricht in das Eingabefeld unten in der Chat-Schnittstelle und klicke
+                  auf "Senden". Deine Nachricht wird im Chatverlauf angezeigt und Study Buddy wird so
+                  schnell wie möglich darauf antworten.
+                </p>
+              </div>
+              <div id="chat-log">
+                <h3>Chatverlauf</h3>
+                <p>
+                  Dein Chatverlauf mit Study Buddy wird auf der linken Seite des Chatfensters angezeigt, damit du später
+                  darauf zurückgreifen kannst.
+                </p>
+              </div>
+              <div id="start-chatting">
+                <h3>Beginne mit dem Chatten</h3>
+                <p>
+                  Bereit anzufangen? So beginnst du mit Study Buddy zu chatten:
+                </p>
+                <ol>
+                  <li><strong>Wähle das Schulfach:</strong> Wähle das Fach aus, in dem über dein Thema gelehrt wird.
+                  </li>
+                  <li><strong>Gib das Thema ein:</strong> Sag Study Buddy, was du lernen möchtest. Dabei kannst du
+                    konkret
+                    sein oder ein allgemeineres Thema eingeben.
+                    <ul>
+                      <em><br>Study Buddy wird dir anschließend ein paar Fragen stellen, um zu verstehen, wie viel du
+                        bereits über
+                        das Thema weißt.</em>
+                    </ul>
+                  </li><br>
+                  <li><strong>Beantworte Study Budy's Fragen:</strong> Finde das Eingabefeld unter der
+                    Chat-Schnittstelle und versuche die Fragen zu beantworten. Mach dir keine Sorgen, ob du
+                    richtig liegst oder nicht; Die Antworten werden nur zur Bewertung deines aktuellen Wissensstandes
+                    verwendet. "Ich weiß es nicht" ist genauso eine Antwort!
+                    <ul>
+                      <em><br>Study Buddy wird jetzt das Gespräch mit dir beginnen. Behandle Study Buddy ruhig wie einen
+                        Mitschüler.</em>
+                    </ul>
+                  </li><br>
+                  <li><strong>Chatte mit Study Buddy:</strong> Interagiere mit Study Buddy, indem du Fragen stellst,
+                    deine Gedanken teilst oder Hilfe zu bestimmten Themen suchst. Verfasse deine Nachricht und klicke
+                    auf "Senden". Deine Nachricht wird an Study Buddy gesendet und im Chatverlauf
+                    angezeigt.
+                    <ul>
+                      <em><br>Nach dem abschicken deiner Nachricht wird Study Buddy so schnell wie möglich antworten. Du
+                        kannst weiter chatten, indem du weitere Nachrichten eingibst und sendest.</em>
+                    </ul>
+                  </li><br>
+                </ol>
+              </div>
+              <div id="tips">
+                <h3>Tipps für ein besseres Chat-Erlebnis</h3>
+                <ul>
+                  <li><strong>Am Thema bleiben:</strong> Behalte deine Nachrichten im Zusammenhang mit dem
+                    ausgewählten Schulfach und Thema, um sinnvolle Gespräche zu führen.</li>
+                  <li><strong>Fragen stellen:</strong> Wenn du unsicher bist oder Erleuterungen benötigst, dann zögere
+                    nicht Fragen zu stellen. Study Buddy ist hier, um zu helfen und wird nie müde.</li>
+                </ul>
+                <p>Viel Spaß beim Chatten!</p>
+              </div>
+            </section>
+            <% } %>
+      </div>
+      <%- include("./partials/footer.ejs") %>
   </body>
 
 </html>
