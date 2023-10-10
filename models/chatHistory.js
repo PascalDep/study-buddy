@@ -126,6 +126,37 @@ chatHistorySchema.statics.addToChatHistory = async function (email, chatData, cu
     }
 }
 
+// Modify the deleteChatSession function to update sessionIDs
+chatHistorySchema.statics.deleteChatSession = async function (email, sessionID) {
+    try {
+        const chatHistory = await this.findOne({ email });
+        if (!chatHistory) {
+            throw new Error('Chat history not found for the specified email.');
+        }
+        const chatIndex = chatHistory.chats.findIndex(chat => chat.sessionID === sessionID);
+
+        if (chatIndex === -1) {
+            throw new Error('Chat session not found.');
+        }
+
+        // Remove the chat session from the array
+        chatHistory.chats.splice(chatIndex, 1);
+
+        // Update the sessionID values of the remaining chat sessions
+        chatHistory.chats.forEach((chat, index) => {
+            chat.sessionID = index; // Update sessionID to be the index
+        });
+
+        const savedChatHistory = await chatHistory.save();
+        return savedChatHistory;
+    } catch (error) {
+        console.error('Error deleting chat session:', error);
+        throw error;
+    }
+};
+
+
+
 // Create a Mongoose model based on the schema
 const ChatHistoryModel = mongoose.model('ChatHistory', chatHistorySchema);
 
