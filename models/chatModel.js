@@ -11,14 +11,24 @@ export const checkTopic = async (req, language) => {
     let isValidTopic = false;
     let subject = req.body.subject;
     let topic = req.body.topic;
-
-    /*    const completion = await openai.completions.create({
+    if (language === 'en') {
+        /*    const completion = await openai.completions.create({
            model: "gpt-3.5-turbo-instruct",
            prompt: `Just answer with a simple YES or NO: Do you know what ${topic} is?`,
            temperature: 0.1,
            max_tokens: 3,
        });
        let responseText = completion.choices[0].text.toUpperCase().trim(); */
+    } else if (language === 'de') {
+        /*    const completion = await openai.completions.create({
+          model: "gpt-3.5-turbo-instruct",
+          prompt: `Antworte mit einem einfachen JA oder NEIN: Weißt du, was ${topic} ist?`,
+          temperature: 0.1,
+          max_tokens: 3,
+      });
+      let responseText = completion.choices[0].text.toUpperCase().trim(); */
+    }
+
     let responseText = "Y"
     if (responseText && responseText.charAt(0) === 'Y') {
         isValidTopic = true;
