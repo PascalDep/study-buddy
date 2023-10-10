@@ -12,6 +12,7 @@ router.get('/', requireAuth, checkEmail, chatController.home_get);
 router.get('/chat', requireAuth, checkEmail, chatController.chat_get);
 router.post('/chat', requireAuth, checkEmail, chatController.chat_post);
 router.post('/chat/lookup', requireAuth, checkEmail, chatController.chatLookup_post);
+router.post('/chat/delete', requireAuth, checkEmail, chatController.delete_history_post);
 
 router.get('/help', chatController.help_get);
 router.get('/about', chatController.about_get);
