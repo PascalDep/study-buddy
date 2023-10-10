@@ -22,7 +22,7 @@ const createToken = (id) => {
 export const home_get = async (req, res) => {
     resetChat();
     await fillChatHistory(req);
-    res.render('index', { title: 'Home', chatHistory, chatLog, subject, topic, language });
+    res.render('index', { title: 'Home', chatHistory, chatLog, subject, topic, language, curSession });
 };
 
 export const chat_get = async (req, res) => {
@@ -30,7 +30,7 @@ export const chat_get = async (req, res) => {
         res.redirect('/');
     } else {
         await fillChatHistory(req);
-        res.render('index', { title: 'chat', chatHistory, chatLog, subject, topic, language });
+        res.render('index', { title: 'chat', chatHistory, chatLog, subject, topic, language, curSession });
     }
 };
 
@@ -76,7 +76,8 @@ export const chat_post = async (req, res) => {
 export const chatLookup_post = async (req, res) => {
     try {
         const session = req.body.sessionID;
-        const userChatHistory = await ChatHistoryModel.findBySession(req.userEmail, session);
+        const userEmail = req.userEmail;
+        const userChatHistory = await ChatHistoryModel.findBySession(userEmail, session);
         if (userChatHistory) {
             curSession = session;
             subject = userChatHistory.chats[0].subject;
@@ -88,8 +89,21 @@ export const chatLookup_post = async (req, res) => {
         }
         res.status(200).json({ session });
     }
-    catch (err) {
+    catch (errors) {
         res.status(400).json({ errors });
+    }
+};
+
+export const delete_history_post = async (req, res) => {
+    try {
+        const sessionID = req.body.sessionID;
+        const userEmail = req.userEmail; // Assuming you have access to the user's email
+        await ChatHistoryModel.deleteChatSession(userEmail, sessionID);
+
+        res.status(200).json({ session: sessionID });
+    } catch (error) {
+        console.error('Error deleting chat session:', error);
+        res.status(400).json({ errors: 'An error occurred while deleting the chat session.' });
     }
 };
 
@@ -200,10 +214,6 @@ const handleErrors = (err) => {
 
 // ------------------------------------------------------------- USE HTTPS!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
-async function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 async function addToChatHistory(req, subject, topic) {
     const email = req.userEmail;
