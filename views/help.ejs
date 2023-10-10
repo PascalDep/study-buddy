@@ -4,19 +4,19 @@
   <body>
     <%- include("./partials/nav.ejs") %>
       <div class="body-container">
-        <aside class="sidebar">
-          <ul class="sidebar-links">
-            <li><a href="#getting-started">Getting Started</a></li>
-            <li><a href="#subjects-topics">Subjects and Topics</a></li>
-            <li><a href="#sending-messages">Sending Messages</a></li>
-            <li><a href="#chat-log">Chat Log</a></li>
-            <li><a href="#tips">Tips for a Great Chat Experience</a></li>
-            <li><a href="#additional-features">Additional Features</a></li>
-            <li><a href="#need-help">Need Help?</a></li>
-          </ul>
-        </aside>
+
 
         <% if (language==='en' ) { %>
+          <aside class="sidebar">
+            <ul class="sidebar-links">
+              <li><a href="#getting-started">Getting Started</a></li>
+              <li><a href="#subjects-topics">Subjects and Topics</a></li>
+              <li><a href="#sending-messages">Chatting with Study Buddy</a></li>
+              <li><a href="#chat-log">Chat Log</a></li>
+              <li><a href="#start-chatting">Start Chatting</a></li>
+              <li><a href="#tips">Tips for a Great Chat Experience</a></li>
+            </ul>
+          </aside>
           <section id="help-section" class="help-section">
             <h2>How to Use Study Buddy</h2>
 
@@ -106,6 +106,16 @@
             </div>
           </section>
           <% } else if (language==='de' ) { %>
+            <aside class="sidebar">
+              <ul class="sidebar-links">
+                <li><a href="#getting-started">Erste Schritte</a></li>
+                <li><a href="#subjects-topics">Fächer und Themen</a></li>
+                <li><a href="#sending-messages">Chatten mit Study Buddy</a></li>
+                <li><a href="#chat-log">Chatverlauf</a></li>
+                <li><a href="#start-chatting">Beginne mit dem Chatten</a></li>
+                <li><a href="#tips">Tipps für ein besseres Chat-Erlebnis</a></li>
+              </ul>
+            </aside>
             <section id="help-section" class="help-section">
               <h2>Wie man Study Buddy verwendet</h2>
               <div id="getting-started">
@@ -150,7 +160,7 @@
               <div id="start-chatting">
                 <h3>Beginne mit dem Chatten</h3>
                 <p>
-                  Bereit anzufangen? So beginnst du mit Study Buddy zu chatten:
+                  Bereit? So beginnst du mit Study Buddy zu chatten:
                 </p>
                 <ol>
                   <li><strong>Wähle das Schulfach:</strong> Wähle das Fach aus, in dem über dein Thema gelehrt wird.
