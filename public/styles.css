@@ -25,7 +25,6 @@
     --link-hover: #007bff;
 
     /* Other */
-    --loading-dots-color: #5A8BB3;
     --mobile-nav-background-image: url('/arrow-down.svg');
   }
 
@@ -130,11 +129,39 @@
     line-height: initial;
   }
 
+  /* Add animation to the textarea */
   textarea {
     resize: none;
     overflow: hidden;
     font-family: Georgia, serif;
+    background-color: var(--white-text-color);
+    border: 2px solid var(--background-color);
+    border-radius: 5px;
   }
+
+  textarea:disabled {
+    background-color: var(--container-disabled-color);
+  }
+
+  .textarea-animation {
+    animation: change-background 2s alternate infinite;
+  }
+
+  /* Define the animation */
+  @keyframes change-background {
+    0% {
+      background-color: var(--white-text-color);
+    }
+
+    50% {
+      background-color: var(--container-disabled-color);
+    }
+
+    100% {
+      background-color: var(--white-text-color);
+    }
+  }
+
 
   footer {
     color: var(--footer-text-color);
@@ -355,42 +382,6 @@
     background-color: var(--answer-background-color);
   }
 
-  /* CSS for loading dots */
-  .loading-dots {
-    display: none;
-    text-align: center;
-    margin: 20px 0;
-  }
-
-  .dot {
-    display: inline-block;
-    margin: 0 5px;
-    width: 8px;
-    height: 8px;
-    background-color: var(--loading-dots-color);
-    border-radius: 50%;
-    animation: loading-animation 1.5s infinite;
-    opacity: 0;
-  }
-
-  @keyframes loading-animation {
-    0% {
-      opacity: 0.3;
-    }
-
-    33% {
-      opacity: 1;
-    }
-
-    66% {
-      opacity: 0.3;
-    }
-
-    100% {
-      opacity: 0.3;
-    }
-  }
-
   /* Chat input styles */
   #chatForm {
     display: flex;
@@ -421,7 +412,9 @@
   }
 
   /* Common button styles for all buttons */
-  .button {
+  .button,
+  .toggle-history-button,
+  .toggle-chat-button {
     background: var(--button-background-color);
     color: var(--white-text-color);
     padding: 10px 20px;
@@ -433,12 +426,30 @@
     white-space: nowrap;
   }
 
-  .button:hover {
+  .toggle-history-button,
+  .toggle-chat-button {
+    display: none;
+  }
+
+  .button:hover,
+  .toggle-history-button:hover,
+  .toggle-chat-button:hover {
     background-color: var(--button-hover-background-color);
   }
 
   .button:disabled {
     background-color: var(--button-disabled-background-color);
+  }
+
+  .toggle-history-button img,
+  .toggle-chat-button img {
+    width: 32px;
+    height: 32px;
+    opacity: 0.7;
+  }
+
+  .toggle-chat-button img {
+    transform: rotate(90deg);
   }
 
   /* Apply the styles to the sign-up form */
@@ -535,7 +546,6 @@
     margin: 4px 0;
   }
 
-  /* Style the selected option */
   #mobile-nav option:checked {
     background-color: var(--answer-background-color);
     color: var(--white-text-color);
@@ -546,50 +556,39 @@
     color: var(--white-text-color);
   }
 
-  /* Style the scrollbar track */
   .chatLog::-webkit-scrollbar {
     width: 5px;
-    /* Width of the scrollbar */
   }
 
-  /* Style the scrollbar thumb (the draggable part) */
   .chatLog::-webkit-scrollbar-thumb {
     background: #8888886b;
-    /* Color of the thumb */
     border-radius: 5px;
-    /* Rounded corners for the thumb */
   }
 
-  /* Style the scrollbar track */
   .chatHistory::-webkit-scrollbar {
     width: 5px;
-    /* Width of the scrollbar */
   }
 
-  /* Style the scrollbar thumb (the draggable part) */
   .chatHistory::-webkit-scrollbar-thumb {
     background: #8888886b;
-    /* Color of the thumb */
     border-radius: 5px;
-    /* Rounded corners for the thumb */
   }
 
-  /* Style the scrollbar track */
   body::-webkit-scrollbar {
     width: 5px;
-    /* Width of the scrollbar */
   }
 
-  /* Style the scrollbar thumb (the draggable part) */
   body::-webkit-scrollbar-thumb {
     background: #8888886b;
-    /* Color of the thumb */
     border-radius: 5px;
-    /* Rounded corners for the thumb */
   }
 
   /* Add this media query to show the select element for smaller screens */
   @media screen and (max-width: 850px) {
+
+    .chatHistory {
+      display: none;
+    }
 
     nav {
       height: 90px;
@@ -598,6 +597,33 @@
 
     nav h1 {
       white-space: wrap;
+    }
+
+    .subject-topic-input {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 5px;
+    }
+
+    .toggle-history-button,
+    .toggle-chat-button {
+      display: block;
+      padding: 0px;
+      width: 38px;
+      height: 38px;
+      margin-left: auto;
+      margin-right: 0;
+      border-radius: 50px;
+      align-self: flex-end;
+    }
+
+    #topicButton {
+      padding: 0px;
+    }
+
+    .subject-topic-input input {
+      margin-left: 0px;
+      margin-right: 0px;
     }
 
     .chat-content {
@@ -613,37 +639,13 @@
       background-color: var(--foreground-color);
     }
 
-    .subject-topic-input {
-      display: flex;
-      flex-direction: column;
-      margin: 0;
-      border: 5px solid var(--border-color);
-      padding: 10px;
-    }
-
-    .subject-topic-input input,
-    .subject-topic-input select {
-      padding: 10px;
-      border-radius: 5px;
-      font-size: 1em;
-      margin: 2px 0;
-    }
-
     .input-buttons {
       display: flex;
       align-items: center;
       margin-top: 10px;
-      /* Adjust as needed */
     }
 
-    .history-appear-button:hover {
-      background-color: var(--button-hover-background-color);
-    }
 
-    /* Hide chatHistory by default */
-    .chatHistory {
-      display: none;
-    }
 
     #mobile-nav {
       display: flex;
@@ -669,6 +671,14 @@
     }
 
     .sidebar {
+      display: none;
+    }
+
+    .toggle-history {
+      display: block;
+    }
+
+    .toggle-chat {
       display: none;
     }
   }
