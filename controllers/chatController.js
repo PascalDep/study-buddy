@@ -2,10 +2,13 @@ import * as chatModel from '../models/chatModel.js';
 import UserModel from '../models/user.js';
 import ChatHistoryModel from '../models/chatHistory.js';
 import jwt from 'jsonwebtoken';
+import { EventEmitter } from 'events'; // Add this import for EventEmitter
+
 const signupKey = 'Taiwan'
 const maxChatLogEntries = 128;
 const chatLog = [];
 const chatHistory = [];
+const chatEmitter = new EventEmitter();
 let curSession = -1;
 let subject = '';
 let topic = '';
@@ -23,6 +26,24 @@ export const home_get = async (req, res) => {
     resetChat();
     await fillChatHistory(req);
     res.render('index', { title: 'Home', chatHistory, chatLog, subject, topic, language, curSession });
+};
+
+// New function to handle SSE connections
+export const chat_sse = (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+
+    const onChatResponse = (response) => {
+        res.write(`data: ${JSON.stringify(response)}\n\n`);
+    };
+
+    // Listen for chat responses
+    chatEmitter.on('chatResponse', onChatResponse);
+
+    // Close the connection when the client disconnects
+    req.on('close', () => {
+        chatEmitter.removeListener('chatResponse', onChatResponse);
+    });
 };
 
 export const chat_get = async (req, res) => {
@@ -48,30 +69,82 @@ export const chat_post = async (req, res) => {
         subject = req.body.subject;
         topic = req.body.topic;
         chatLog.length = 0;
-        let { answers, isValidTopic } = await chatModel.checkTopic(req, language);
-        answers.forEach(answer => {
-            chatLog.push(answer);
-        });
+        const isValidTopic = await chatModel.checkTopic(req, language);
         if (!isValidTopic) {
             curSession = -1;
             topic = '';
             subject = '';
+            const log = chatModel.initChatLog(subject, topic, language);
+            log.forEach(prompt => {
+                chatLog.push(prompt);
+            });
         } else {
+            const log = chatModel.initChatLog(subject, topic, language);
+            log.forEach(prompt => {
+                chatLog.push(prompt);
+            });
+            await generateChatResponse('');
             await addToChatHistory(req, subject, topic);
         }
     } else if (curSession >= 0) {
+        const userInput = req.body.input;
         chatLog.push({
             role: 'user',
-            content: req.body.input
+            content: userInput
         });
 
-        const answer = await chatModel.generateAnswer(chatLog);
-        chatLog.push(answer);
+        await generateChatResponse(userInput);
+
+        /* const answer = await chatModel.generateAnswer(chatLog);
+        chatLog.push(answer); */
 
         await addToChatHistory(req, subject, topic);
     }
     res.redirect('/chat');
 };
+
+async function generateChatResponse(userInput) {
+    try {
+        if(userInput !== ''){
+            chatEmitter.emit('chatResponse', { type: 'input', content: userInput });
+        } else {
+            const greeting = chatModel.greeting(language);
+            chatEmitter.emit('chatResponse', { type: 'answer', content: greeting });
+        }
+
+        const chatCompletion = await chatModel.generateAnswer(chatLog);
+        let rLog = '';
+        let sentence = '';
+
+        for await (const part of chatCompletion) {
+            const response = part.choices[0].delta.content;
+
+            if (response !== undefined && response !== null) {
+                sentence += response;
+
+                if (response.includes('.')) {
+                    chatEmitter.emit('chatResponse', { type: 'answer', content: sentence });
+                    rLog += sentence;
+                    sentence = '';
+                }
+            }
+        }
+
+        if (sentence.length > 0) {
+            rLog += sentence;
+        }
+
+        chatLog.push({
+            role: 'assistant',
+            content: rLog
+        });
+
+        console.log(chatLog);
+    } catch (error) {
+        console.error('Error generating chat completion:', error);
+        // Handle the error as needed
+    }
+}
 
 export const chatLookup_post = async (req, res) => {
     try {
