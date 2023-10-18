@@ -6,6 +6,9 @@ const router = Router();
 
 router.get('*', checkUser);
 
+// Add an SSE route for chat responses
+router.get('/chat/sse', requireAuth, checkEmail, chatController.chat_sse);
+
 // routes
 router.get('/', requireAuth, checkEmail, chatController.home_get);
 
