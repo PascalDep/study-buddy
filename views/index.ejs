@@ -1,11 +1,14 @@
 <html>
-  
+
 <%- include("./partials/head.ejs") %>
 
   <body>
     <%- include("./partials/nav.ejs") %>
       <div class="chat-content">
         <div class="chatHistory">
+          <button class="toggle-chat-button">
+            <img src="arrow-down.svg" alt="history">
+          </button>
           <% if (chatHistory.length> 0) { %>
             <% let hasDisplayedLabel=false; %>
               <% chatHistory.reverse().forEach(entry=> { %>
@@ -41,29 +44,37 @@
                         : 'Subject' %>
                         <img src=".\arrow-down.svg">
                   </option>
+                  <option value="Biology">Biology</option>
                   <option value="Chemistry">Chemistry</option>
+                  <option value="German">German</option>
                   <option value="English">English</option>
                   <option value="History">History</option>
-                  <option value="Math">Math</option>
-
+                  <option value="Italian">Italian</option>
+                  <option value="Mathematics">Mathematics</option>
                   <% } else if (language==='de' ) { %>
                     <option value="<%= subject %>" <% if (subject !=='' ) { %>selected<% } %>><%= subject !=='' ?
                           subject : 'Schulfach' %>
                           <img src=".\arrow-down.svg">
                     </option>
+                    <option value="Biologie">Biologie</option>
                     <option value="Chemie">Chemie</option>
+                    <option value="Deutsch">Deutsch</option>
                     <option value="Englisch">Englisch</option>
                     <option value="Geschichte">Geschichte</option>
+                    <option value="Italienisch">Italienisch</option>
                     <option value="Mathematik">Mathematik</option>
                     <% } %>
             </select>
-            <input type="text" maxlength="64" id="topic" name="topic" autocomplete="off" 
+            <input type="text" maxlength="64" id="topic" name="topic" autocomplete="off"
               placeholder="<%= language === 'de' ? 'Thema' : 'Topic' %>" required <% if (topic !=='' ) { %>disabled<% }
               %>
               value="<%= topic !=='' ? topic : '' %>">
                 <button type="submit" id="topicButton" class="button">
                   <%= topic !=='' ? (language==='de' ? 'Neu' : 'New' ) : (language==='de' ? "Los geht's" : "Let's Go" )
                     %>
+                </button>
+                <button type="submit" class="toggle-history-button">
+                  <img src="book-icon.svg" alt="history">
                 </button>
           </form>
           <div class="chatLog" id="chatLog">
@@ -79,11 +90,6 @@
                         <% } %>
                           <% }); %>
                             <% } %>
-                              <div class="loading-dots">
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                              </div>
           </div>
 
           <form id="chatForm" action="/chat" method="POST">
@@ -121,6 +127,32 @@
       handleSubmit(this);
     });
 
+    const eventSource = new EventSource('/chat/sse');
+    let answerElement = null;
+
+    eventSource.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+        if (message.type === 'input') {
+          const inputElement = document.createElement('p');
+          inputElement.classList.add('input');
+          inputElement.textContent = message.content;
+          chatLog.appendChild(inputElement);
+        } else if (message.type === 'answer') {
+          if (!answerElement) {
+            answerElement = document.createElement('p');
+            answerElement.classList.add('answer');
+            answerElement.textContent = message.content;
+          } else {
+            answerElement.textContent += ' ' + message.content;
+          }
+
+          chatLog.appendChild(answerElement);
+        }
+
+      chatLog.scrollTop = chatLog.scrollHeight;
+    };
+
+
     chatInput.addEventListener('submit', function (event) {
       handleSubmit(this);
       const chatLog = document.getElementById('chatLog');
@@ -129,11 +161,10 @@
 
     function handleSubmit(form) {
       event.preventDefault();
-      const loadingDots = document.querySelector('.loading-dots');
-      loadingDots.style.display = 'block';
+      const textarea = document.getElementById('input');
+      textarea.classList.add('textarea-animation');
       form.submit();
       disableFormElements(form);
-
     }
 
     function disableFormElements(form) {
@@ -188,8 +219,8 @@
         const okButtons = document.querySelectorAll('#okButton');
         okButtons.forEach(okButton => {
           okButton.addEventListener('click', async () => {
-            const loadingDots = document.querySelector('.loading-dots');
-            loadingDots.style.display = 'block';
+            const textarea = document.getElementById('input');
+            textarea.classList.remove('textarea-animation');
             disableFormElements(topicInput);
             disableFormElements(chatInput);
             try {
@@ -207,6 +238,22 @@
         });
       });
     });
+
+    // Get the button elements
+    const toggleHistoryButton = document.querySelector(".toggle-history-button");
+    const toggleChatButton = document.querySelector(".toggle-chat-button");
+    const chatHistory = document.querySelector(".chatHistory");
+    const chatContainer = document.querySelector(".chatContainer");
+
+    // Add event listeners to the buttons
+    toggleHistoryButton.addEventListener("click", toggle);
+    toggleChatButton.addEventListener("click", toggle);
+
+    function toggle(event) {
+      event.preventDefault(); // Prevent the default behavior
+      chatHistory.classList.toggle("toggle-history");
+      chatContainer.classList.toggle("toggle-chat");
+    }
 
 
   </script>
