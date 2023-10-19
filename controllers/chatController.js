@@ -88,9 +88,10 @@ export const chat_post = async (req, res) => {
         }
     } else if (curSession >= 0) {
         const userInput = req.body.input;
+        const inputPrompt = chatModel.postPromptString(language, subject);
         chatLog.push({
             role: 'user',
-            content: userInput
+            content: userInput + inputPrompt
         });
 
         await generateChatResponse(userInput);
@@ -105,24 +106,25 @@ export const chat_post = async (req, res) => {
 
 async function generateChatResponse(userInput) {
     try {
-        if(userInput !== ''){
+        let greeting = '';
+        if (userInput !== '') {
             chatEmitter.emit('chatResponse', { type: 'input', content: userInput });
         } else {
-            const greeting = chatModel.greeting(language);
+            greeting = chatModel.greeting(language);
             chatEmitter.emit('chatResponse', { type: 'answer', content: greeting });
         }
 
         const chatCompletion = await chatModel.generateAnswer(chatLog);
         let rLog = '';
         let sentence = '';
-
+ 
         for await (const part of chatCompletion) {
             const response = part.choices[0].delta.content;
 
             if (response !== undefined && response !== null) {
                 sentence += response;
 
-                if (response.includes('.')) {
+                if (response.includes('.') || response.includes('\n')) {
                     chatEmitter.emit('chatResponse', { type: 'answer', content: sentence });
                     rLog += sentence;
                     sentence = '';
@@ -133,10 +135,15 @@ async function generateChatResponse(userInput) {
         if (sentence.length > 0) {
             rLog += sentence;
         }
+        chatLog.pop();
+        chatLog.push({
+            role: 'user',
+            content: userInput
+        });
 
         chatLog.push({
             role: 'assistant',
-            content: rLog
+            content: greeting + rLog
         });
 
         console.log(chatLog);
