@@ -50,7 +50,7 @@
                   <option value="English">English</option>
                   <option value="History">History</option>
                   <option value="Italian">Italian</option>
-                  <option value="Mathematics">Mathematics</option>
+                  <!-- <option value="Mathematics">Mathematics</option> -->
                   <% } else if (language==='de' ) { %>
                     <option value="<%= subject %>" <% if (subject !=='' ) { %>selected<% } %>><%= subject !=='' ?
                           subject : 'Schulfach' %>
@@ -62,7 +62,7 @@
                     <option value="Englisch">Englisch</option>
                     <option value="Geschichte">Geschichte</option>
                     <option value="Italienisch">Italienisch</option>
-                    <option value="Mathematik">Mathematik</option>
+                    <!-- <option value="Mathematik">Mathematik</option> -->
                     <% } %>
             </select>
             <input type="text" maxlength="64" id="topic" name="topic" autocomplete="off"
@@ -93,7 +93,7 @@
           </div>
 
           <form id="chatForm" action="/chat" method="POST">
-            <textarea maxlength="256" id="input" name="input" autocomplete="off"
+            <textarea maxlength="512" id="input" name="input" autocomplete="off"
               placeholder="<%= language === 'de' ? 'Frag mich hier...' : 'Ask me here...' %>" required <% if (topic===''
               ) { %>disabled<% } %>></textarea>
             <button type="submit" id="chatButton" class="button" <% if (topic==='' ) { %>disabled<% } %>>
