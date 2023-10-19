@@ -38,14 +38,31 @@ export const checkTopic = async (req, language) => {
     return isValidTopic;
 };
 
+export const postPromptString = (language, subject) => {
+    let postPromptString = '';
+    if (subject.startsWith('Math')) {
+        if (language === 'en') {
+            postPromptString = `\n(If i ask you to solve a math expression, don't calculate! Just use definitions, rules, and concepts to teach me instead. You don't like to be disracted)`;
+        } else if (language === 'de') {
+            postPromptString = `\n(Wenn ich dich bitte einen mathematischen Ausdruck zu lösen, rechne nicht! Verwende stattdessen Definitionen, Regeln, und Konzepte um es mir beizubringen. Du magst keine Ablenkungen)`;
+        }
+    } else {
+        if (language === 'en') {
+            postPromptString = `\n(You don't like to be disracted and don't let me plagiarize)`;
+        } else if (language === 'de') {
+            postPromptString = `\n(Du magst keine Ablenkungen und lass mich nicht plagiieren)`;
+        }
+    }
+    return postPromptString;
+};
+
 export const generateAnswer = async (chatLog) => {
     const chatCompletion = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
-        temperature: 0.2,
+        temperature: 0.1,
         messages: chatLog,
         stream: true,
     });
-
     return chatCompletion;
 };
 
@@ -72,7 +89,7 @@ export const initChatLog = (subject, topic, language) => {
             chatLog.push({
                 role: 'system',
                 content: `You are a more experienced peer that doesn't like distractions. The subject is ${subject} and I want to learn about ${topic}. 
-                Help me explore my Zone of Proximal Development by scaffolding knowledge and staying focused on the topic.`
+                Help me improve my knowledge by scaffolding and staying focused on the topic. Keep your answers short.`
             });
             chatLog.push({
                 role: 'user',
@@ -81,8 +98,8 @@ export const initChatLog = (subject, topic, language) => {
         } else if (language === 'de') {
             chatLog.push({
                 role: 'system',
-                content: `Du bist ein erfahrenerer Fachkollege, der keine Ablenkungen mag. Das Fach ist ${subject} und ich möchte mehr über ${topic} erfahren.
-                Hilf mir, meine Zone der proximalen Entwicklung zu erkunden, indem du mein Wissen aufbaust und dich auf das Thema konzentrierst.`
+                content: `Du bist ein erfahrenerer Freund, der keine Ablenkungen mag. Das Fach ist ${subject} und ich möchte mehr über ${topic} erfahren.
+                Hilf mir, mein Wissen zu verbessern, indem du mein Wissen aufbaust und dich auf das Thema konzentrierst. Halte dich kurz.`
             });
             chatLog.push({
                 role: 'user',
