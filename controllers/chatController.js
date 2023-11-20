@@ -12,7 +12,7 @@ const chatEmitter = new EventEmitter();
 let curSession = -1;
 let subject = '';
 let topic = '';
-let language = 'en';
+let language = 'de';
 
 // create json web token
 const maxAge = 3 * 24 * 60 * 60; // three days in seconds
@@ -88,10 +88,11 @@ export const chat_post = async (req, res) => {
         }
     } else if (curSession >= 0) {
         const userInput = req.body.input;
-        const inputPrompt = chatModel.postPromptString(language, subject);
+    //    const inputPrompt = chatModel.postPromptString(language, subject);
         chatLog.push({
             role: 'user',
-            content: userInput + inputPrompt
+            //content: userInput + inputPrompt
+            content: userInput
         });
 
         await generateChatResponse(userInput);
