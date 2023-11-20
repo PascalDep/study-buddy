@@ -44,24 +44,26 @@
                         : 'Subject' %>
                         <img src=".\arrow-down.svg">
                   </option>
-                  <option value="Biology">Biology</option>
-                  <option value="Chemistry">Chemistry</option>
-                  <option value="German">German</option>
-                  <option value="English">English</option>
-                  <option value="History">History</option>
-                  <option value="Italian">Italian</option>
+                  <option value="Biology" disabled>Biology</option>
+                  <option value="Chemistry" disabled>Chemistry</option>
+                  <option value="German" disabled>German</option>
+                  <option value="English" disabled>English</option>
+                  <option value="History" disabled>History</option>
+                  <option value="Italian" disabled>Italian</option>
+                  <option value="Social Studies">Social Studies</option>
                   <!-- <option value="Mathematics">Mathematics</option> -->
                   <% } else if (language==='de' ) { %>
                     <option value="<%= subject %>" <% if (subject !=='' ) { %>selected<% } %>><%= subject !=='' ?
                           subject : 'Schulfach' %>
                           <img src=".\arrow-down.svg">
                     </option>
-                    <option value="Biologie">Biologie</option>
-                    <option value="Chemie">Chemie</option>
-                    <option value="Deutsch">Deutsch</option>
-                    <option value="Englisch">Englisch</option>
-                    <option value="Geschichte">Geschichte</option>
-                    <option value="Italienisch">Italienisch</option>
+                    <option value="Biologie" disabled>Biologie</option>
+                    <option value="Chemie" disabled>Chemie</option>
+                    <option value="Deutsch" disabled>Deutsch</option>
+                    <option value="Englisch" disabled>Englisch</option>
+                    <option value="Gemeinschaftskunde">Gemeinschaftskunde</option>
+                    <option value="Geschichte" disabled>Geschichte</option>
+                    <option value="Italienisch" disabled>Italienisch</option>
                     <!-- <option value="Mathematik">Mathematik</option> -->
                     <% } %>
             </select>
