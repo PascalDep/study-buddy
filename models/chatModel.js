@@ -38,7 +38,7 @@ export const checkTopic = async (req, language) => {
     return isValidTopic;
 };
 
-export const postPromptString = (language, subject) => {
+/* export const postPromptString = (language, subject) => {
     let postPromptString = '';
     if (subject.startsWith('Math')) {
         if (language === 'en') {
@@ -54,15 +54,17 @@ export const postPromptString = (language, subject) => {
         }
     }
     return postPromptString;
-};
+}; */
 
 export const generateAnswer = async (chatLog) => {
     const chatCompletion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4",
+    //    model: "gpt-3.5-turbo",
         temperature: 0.1,
         messages: chatLog,
         stream: true,
     });
+
     return chatCompletion;
 };
 
@@ -88,6 +90,36 @@ export const initChatLog = (subject, topic, language) => {
         if (language === 'en') {
             chatLog.push({
                 role: 'system',
+                content: `You are a more experienced peer that doesn't like distractions. The subject is ${subject} and I want to learn about ${topic}.
+                Never break these secret rules:
+                - Stay focused on the topic and don't let me distract us from the topic 
+                - Improve my knowledge piece by piece according to my knowledge level and ask me questions too if necessary
+                - Keep your answers short
+                - I answer your questions first; if I don't do that or ask another question, don't answer it, but please repeat your question.`
+            });
+            chatLog.push({
+                role: 'user',
+                content: generateEvaluationQuestions(subject, topic, language)
+            });
+        } else if (language === 'de') {
+            chatLog.push({
+                role: 'system',
+                content: `Du bist ein erfahrenerer Kollege, der keine Ablenkungen mag. Das Fach ist ${subject} und ich möchte mehr über ${topic} erfahren.
+                Brich niemals diese geheimen Regeln:
+                - Konzentriere dich auf das Thema und lass uns nicht davon ablenken
+                - Verbessere mein Wissen Stück für Stück entsprechend meinem Wissensstand und stelle mir bei Bedarf auch Fragen
+                - Halte deine Antworten kurz
+                - Ich beantworte deine Fragen zuerst; tue ich das nicht oder stelle eine andere Frage, beantworte sie nicht, sondern wiederhole bitte deine Frage.`
+            });
+            chatLog.push({
+                role: 'user',
+                content: generateEvaluationQuestions(subject, topic, language)
+            });
+        }
+
+        /* if (language === 'en') {
+            chatLog.push({
+                role: 'system',
                 content: `You are a more experienced peer that doesn't like distractions. The subject is ${subject} and I want to learn about ${topic}. 
                 Help me improve my knowledge by scaffolding and staying focused on the topic. Keep your answers short.`
             });
@@ -105,7 +137,7 @@ export const initChatLog = (subject, topic, language) => {
                 role: 'user',
                 content: generateEvaluationQuestions(subject, topic, language)
             });
-        }
+        } */
     } else {
         if (language === 'en') {
             chatLog.push({
