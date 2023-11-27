@@ -14,7 +14,7 @@ export const checkTopic = async (req, language) => {
     if (language === 'en') {
         const completion = await openai.completions.create({
             model: "gpt-3.5-turbo-instruct",
-            prompt: `Just answer with a simple YES or NO: Is ${topic} a valid topic for the school subject ${subject}?`,
+            prompt: `Answer with a simple YES or NO: Can you learn about ${topic} in school?`,
             temperature: 0.5,
             max_tokens: 3,
         });
@@ -23,8 +23,8 @@ export const checkTopic = async (req, language) => {
     } else if (language === 'de') {
         const completion = await openai.completions.create({
             model: "gpt-3.5-turbo-instruct",
-            prompt: `Antworte mit einem einfachen JA oder NEIN: Ist ${topic} ein gültiges Thema für das Fach ${subject}?`,
-            temperature: 0.5,
+            prompt: `Antworte mit einem einfachen JA oder NEIN: Kann man in der Schule etwas über ${topic} lernen?`,
+            temperature: 0.1,
             max_tokens: 3,
         });
         responseText = completion.choices[0].text.toUpperCase().trim();
@@ -59,7 +59,7 @@ export const checkTopic = async (req, language) => {
 export const generateAnswer = async (chatLog) => {
     const chatCompletion = await openai.chat.completions.create({
         model: "gpt-4",
-    //    model: "gpt-3.5-turbo",
+        //    model: "gpt-3.5-turbo",
         temperature: 0.1,
         messages: chatLog,
         stream: true,
