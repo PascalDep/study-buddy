@@ -9,7 +9,7 @@
         <p>KI-gestütztes Lerntool</p>
         <% } %>
   </div>
-  <select id="language-select">
+  <!-- <select id="language-select">
     <% if (language==='en' ) { %>
       <option value="en" selected>English</option>
       <option value="de">Deutsch</option>
@@ -17,7 +17,7 @@
         <option value="en">English</option>
         <option value="de" selected>Deutsch</option>
         <% } %>
-  </select>
+  </select> -->
   <ul>
     <li><a href="/">Home</a></li>
     <% if (language==='en' ) { %>
@@ -68,7 +68,7 @@
   </select>
 </nav>
 <script>
-  const languageSelect = document.getElementById('language-select');
+  /* const languageSelect = document.getElementById('language-select');
 
   languageSelect.addEventListener('change', async () => {
     const selectedLanguage = languageSelect.value;
@@ -89,7 +89,7 @@
     } catch (error) {
       console.error('Error occurred:', error);
     }
-  });
+  }); */
 
   const currentUrl = window.location.pathname;
   const mobileNav = document.getElementById('mobile-nav');
