@@ -1,19 +1,20 @@
 import { Router } from 'express';
 import * as chatController from '../controllers/chatController.js';
-import { requireAuth, checkUser, checkEmail } from '../middleware/authMiddleware.js';
+import { requireAuth, checkUser, checkEmail, resetUserSession } from '../middleware/authMiddleware.js';
+import { fetchChatData } from '../middleware/chatMiddleware.js';
 
 const router = Router();
 
 router.get('*', checkUser);
 
 // Add an SSE route for chat responses
-router.get('/chat/sse', requireAuth, checkEmail, chatController.chat_sse);
+router.get('/chat/sse', chatController.chat_sse);
 
 // routes
-router.get('/', requireAuth, checkEmail, chatController.home_get);
+router.get('/', requireAuth, checkUser, resetUserSession, fetchChatData, chatController.home_get);
 
-router.get('/chat', requireAuth, checkEmail, chatController.chat_get);
-router.post('/chat', requireAuth, checkEmail, chatController.chat_post);
+router.get('/chat', requireAuth, checkUser, fetchChatData, chatController.chat_get);
+router.post('/chat', requireAuth, checkUser, fetchChatData, chatController.chat_post);
 router.post('/chat/lookup', requireAuth, checkEmail, chatController.chatLookup_post);
 router.post('/chat/delete', requireAuth, checkEmail, chatController.delete_history_post);
 
