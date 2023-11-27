@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import UserModel from '../models/user.js';
 
 const chatHistorySchema = new mongoose.Schema({
     email: {
@@ -26,15 +27,26 @@ const chatHistorySchema = new mongoose.Schema({
 });
 
 // static method to find chat session by email
-chatHistorySchema.statics.findByEmail = async function (email) {
+chatHistorySchema.statics.getChatHistory = async function (objectId) {
     try {
-        const chatHistory = await this.findOne({ email });
+        const chatHistory = await this.findOne({ "_id": objectId });
         if (chatHistory) {
             return chatHistory;
         }
         return [];
     } catch (error) {
         return [];
+    }
+};
+
+chatHistorySchema.statics.setChatSession = async function (email, sessionID) {
+    try {
+        const filter = { email };
+        const update = { currentSession: sessionID };
+        const result = await UserModel.updateOne(filter, update);
+    } catch (error) {
+        console.error('Error finding chat session:', error);
+        throw error;
     }
 };
 
@@ -54,20 +66,15 @@ chatHistorySchema.statics.findBySession = async function (email, sessionID) {
     }
 };
 
-// What if more people share one account???------------------------
-// Function to store or update chat history
-chatHistorySchema.statics.addToChatHistory = async function (email, chatData, curSession) {
-    const subject = chatData.subject;
-    const topic = chatData.topic;
-    let sessionID;
-
+chatHistorySchema.statics.addToChatHistory = async function (req, subject, topic, chatLog) {
     try {
-        // Find the chat history document based on the email
-        let chatHistory = await ChatHistoryModel.findOne({ email });
-
+        const email = req.user.email;
+        const chatHistoryId = req.user.chatId;
+        let sessionID;
+        let chatHistory = await ChatHistoryModel.findById(chatHistoryId);
+        // If no chat history document exists, create a new one
         if (!chatHistory) {
             sessionID = 0;
-            // If no chat history document exists for the email, create a new one
             chatHistory = new ChatHistoryModel({
                 email,
                 chats: [
@@ -76,50 +83,46 @@ chatHistorySchema.statics.addToChatHistory = async function (email, chatData, cu
                         subject,
                         topic,
                         createdAt: new Date(),
-                        messages: chatData.messages,
+                        messages: chatLog,
                     },
                 ],
             });
+            const filter = { email };
+            const update = { chatId: chatHistory._id, currentSession: sessionID };
+            const result = await UserModel.updateOne(filter, update);
         } else {
-            const chatEntry = await ChatHistoryModel.findOne(
-                { email, 'chats.sessionID': curSession },
-                { 'chats.$': 1 }
-            );
-
-            if (chatEntry) {
-                const matchedChat = chatEntry.chats[0]; // Access the first (and only) matched chat entry
-                if (matchedChat.sessionID === curSession.toString()) {
-                    // Matched session ID, update the existing chat entry
-                    sessionID = curSession;
-                    chatHistory.chats[sessionID] = {
-                        sessionID,
-                        subject,
-                        topic,
-                        createdAt: new Date(),
-                        messages: chatData.messages,
-                    };
-                }
-            } else {
-                // No matching chat entry found, add a new one
+            console.log('chatLog length', chatLog.length)
+            if (chatLog.length == 3) {
+                // ChatHistory exists, but no matching chat session found, add a new one
                 sessionID = chatHistory.chats.length;
                 chatHistory.chats.push({
                     sessionID,
                     subject,
                     topic,
                     createdAt: new Date(),
-                    messages: chatData.messages,
+                    messages: chatLog,
                 });
+            } else {
+                // Matched session ID, update the existing chat entry
+                sessionID = req.user.currentSession;
+                chatHistory.chats[sessionID] = {
+                    sessionID,
+                    subject,
+                    topic,
+                    createdAt: new Date(),
+                    messages: chatLog,
+                };
             }
-
             if (chatHistory.chats.length > 32) {
                 chatHistory.chats.shift();
             }
+            const filter = { email };
+            const update = { currentSession: sessionID };
+            const result = await UserModel.updateOne(filter, update);
         }
         // Save the chat history document to persist the changes
         const savedChatHistory = await chatHistory.save();
-
-        // return savedChatHistory;
-        return sessionID;
+        return chatHistory.chats[req.user.currentSession];
     } catch (error) {
         console.error('Error storing or updating chat history:', error);
         throw error;
@@ -154,8 +157,6 @@ chatHistorySchema.statics.deleteChatSession = async function (email, sessionID) 
         throw error;
     }
 };
-
-
 
 // Create a Mongoose model based on the schema
 const ChatHistoryModel = mongoose.model('ChatHistory', chatHistorySchema);
