@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import { EventEmitter } from 'events'; // Add this import for EventEmitter
 
 const signupKey = 'Taiwan'
-const chatEmitter = new EventEmitter();
+const userEmitters = new Map();
 let language = 'de';
 
 // create json web token
@@ -20,6 +20,18 @@ const createToken = (id) => {
 export const chat_sse = (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
+    const userId = req.user.email;
+    if (!userId) {
+        res.status(401).end(); // Unauthorized
+        return;
+    }
+
+    // Get or create an emitter for the user
+    let chatEmitter = userEmitters.get(userId);
+    if (!chatEmitter) {
+        chatEmitter = new EventEmitter();
+        userEmitters.set(userId, chatEmitter);
+    }
 
     const onChatResponse = (response) => {
         res.write(`data: ${JSON.stringify(response)}\n\n`);
@@ -85,7 +97,7 @@ export const chat_post = async (req, res) => {
             log.forEach(prompt => {
                 chatLog.push(prompt);
             });
-            await generateChatResponse('', chatLog);
+            await generateChatResponse('', chatLog, req.user.email);
             await ChatHistoryModel.addToChatHistory(req, subject, topic, chatLog);
         }
     } else if (req.body.input != null) {
@@ -103,7 +115,7 @@ export const chat_post = async (req, res) => {
             content: userInput
         });
 
-        await generateChatResponse(userInput, chatLog);
+        await generateChatResponse(userInput, chatLog, req.user.email);
         await ChatHistoryModel.addToChatHistory(req, chatSession.subject, chatSession.topic, chatLog);
     } else {
         return res.redirect('/');
@@ -111,9 +123,10 @@ export const chat_post = async (req, res) => {
     res.redirect('/chat');
 };
 
-async function generateChatResponse(userInput, chatLog) {
+async function generateChatResponse(userInput, chatLog, userEmail) {
     try {
         let greeting = '';
+        const chatEmitter = userEmitters.get(userEmail);
         if (userInput !== '') {
             chatEmitter.emit('chatResponse', { type: 'input', content: userInput });
         } else {
@@ -252,6 +265,8 @@ export const login_post = async (req, res) => {
 }
 
 export const logout_get = async (req, res) => {
+    const userId = req.user.id;
+    userEmitters.delete(userId);
     res.cookie('jwt', '', { maxAge: 1 });
     res.redirect('/');
 }
