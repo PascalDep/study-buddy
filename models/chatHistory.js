@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import UserModel from '../models/user.js';
 
 const chatHistorySchema = new mongoose.Schema({
+    //_id: mongoose.Schema.Types.ObjectId,
     email: {
         type: String,
         lowercase: true,
@@ -69,13 +70,14 @@ chatHistorySchema.statics.findBySession = async function (email, sessionID) {
 chatHistorySchema.statics.addToChatHistory = async function (req, subject, topic, chatLog) {
     try {
         const email = req.user.email;
-        const chatHistoryId = req.user.chatId;
+        let chatHistoryId = req.user.chatId;
         let sessionID;
-        let chatHistory = await ChatHistoryModel.findById(chatHistoryId);
-        // If no chat history document exists, create a new one
-        if (!chatHistory) {
+        let chatHistory;
+        // No chatHistoryId was set
+        if (chatHistoryId == "") {
             sessionID = 0;
             chatHistory = new ChatHistoryModel({
+                //_id: new mongoose.Types.ObjectId(), // Explicitly generate an _id
                 email,
                 chats: [
                     {
@@ -87,39 +89,44 @@ chatHistorySchema.statics.addToChatHistory = async function (req, subject, topic
                     },
                 ],
             });
+            await chatHistory.save();
+            chatHistoryId = chatHistory._id;
             const filter = { email };
-            const update = { chatId: chatHistory._id, currentSession: sessionID };
+            const update = { chatId: chatHistoryId, currentSession: sessionID };
             const result = await UserModel.updateOne(filter, update);
-        } else {
-            console.log('chatLog length', chatLog.length)
-            if (chatLog.length == 3) {
-                // ChatHistory exists, but no matching chat session found, add a new one
-                sessionID = chatHistory.chats.length;
-                chatHistory.chats.push({
-                    sessionID,
-                    subject,
-                    topic,
-                    createdAt: new Date(),
-                    messages: chatLog,
-                });
-            } else {
-                // Matched session ID, update the existing chat entry
-                sessionID = req.user.currentSession;
-                chatHistory.chats[sessionID] = {
-                    sessionID,
-                    subject,
-                    topic,
-                    createdAt: new Date(),
-                    messages: chatLog,
-                };
-            }
-            if (chatHistory.chats.length > 32) {
-                chatHistory.chats.shift();
-            }
-            const filter = { email };
-            const update = { currentSession: sessionID };
-            const result = await UserModel.updateOne(filter, update);
+            return chatHistory.chats[sessionID];
         }
+        chatHistory = await ChatHistoryModel.findById(chatHistoryId);
+        // If no chat history document exists, create a new one
+
+        if (chatLog.length == 3) {
+            // ChatHistory exists, but no matching chat session found, add a new one
+            sessionID = chatHistory.chats.length;
+            chatHistory.chats.push({
+                sessionID,
+                subject,
+                topic,
+                createdAt: new Date(),
+                messages: chatLog,
+            });
+        } else {
+            // Matched session ID, update the existing chat entry
+            sessionID = req.user.currentSession;
+            chatHistory.chats[sessionID] = {
+                sessionID,
+                subject,
+                topic,
+                createdAt: new Date(),
+                messages: chatLog,
+            };
+        }
+        if (chatHistory.chats.length > 32) {
+            chatHistory.chats.shift();
+        }
+        const filter = { email };
+        const update = { currentSession: sessionID };
+        const result = await UserModel.updateOne(filter, update);
+
         // Save the chat history document to persist the changes
         const savedChatHistory = await chatHistory.save();
         return chatHistory.chats[req.user.currentSession];
