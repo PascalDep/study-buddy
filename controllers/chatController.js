@@ -5,13 +5,7 @@ import jwt from 'jsonwebtoken';
 import { EventEmitter } from 'events'; // Add this import for EventEmitter
 
 const signupKey = 'Taiwan'
-const maxChatLogEntries = 128;
-const chatLog = [];
-const chatHistory = [];
 const chatEmitter = new EventEmitter();
-let curSession = -1;
-let subject = '';
-let topic = '';
 let language = 'de';
 
 // create json web token
@@ -20,12 +14,6 @@ const createToken = (id) => {
     return jwt.sign({ id }, 'sRkv:C9/h)X@qd4>}JM;=ZtrP#F8QgBT', {
         expiresIn: maxAge
     });
-};
-
-export const home_get = async (req, res) => {
-    resetChat();
-    await fillChatHistory(req);
-    res.render('index', { title: 'Home', chatHistory, chatLog, subject, topic, language, curSession });
 };
 
 // New function to handle SSE connections
@@ -46,34 +34,48 @@ export const chat_sse = (req, res) => {
     });
 };
 
+export const home_get = async (req, res) => {
+    const chatHistory = await getUserChatHistory(req);
+    const chatLog = [];
+    res.render('index', { title: 'Home', chatHistory, chatLog, subject: '', topic: '', language, curSession: -1 });
+};
+
 export const chat_get = async (req, res) => {
-    if (chatLog.length === 0) {
-        res.redirect('/');
+    const chatHistory = await getUserChatHistory(req);
+    const chatSession = await getUserChatSession(req);
+    if (req.user.currentSession >= 0) {
+        res.render('index', {
+            title: 'chat', chatHistory, chatLog: chatSession.messages, subject: chatSession.subject,
+            topic: chatSession.topic, language, curSession: req.user.currentSession
+        });
     } else {
-        await fillChatHistory(req);
-        res.render('index', { title: 'chat', chatHistory, chatLog, subject, topic, language, curSession });
+        const chatLog = [];
+        if (language === 'en') {
+            chatLog.push({
+                role: 'info',
+                content: 'This topic is not clear to me. Please choose another topic.'
+            });
+        } else if (language === 'de') {
+            chatLog.push({
+                role: 'info',
+                content: 'Dieses Thema ist mir nicht ganz klar. Bitte wähle ein anderes Thema.'
+            });
+        }
+        res.render('index', {
+            title: 'chat', chatHistory, chatLog: chatLog, subject: '',
+            topic: '', language, curSession: req.user.currentSession
+        });
     }
 };
 
 export const chat_post = async (req, res) => {
-    //await delay(2000);
-    if (Object.keys(req.body).length === 0) {
-        return res.redirect('/');
-    }
-
-    if (chatLog.length >= maxChatLogEntries) {
-        chatLog.shift();
-    }
-
-    if (curSession < 0) {
-        subject = req.body.subject;
-        topic = req.body.topic;
-        chatLog.length = 0;
+    const subject = req.body.subject;
+    const topic = req.body.topic;
+    const chatLog = [];
+    // New chat opened
+    if (topic != null) {
         const isValidTopic = await chatModel.checkTopic(req, language);
         if (!isValidTopic) {
-            curSession = -1;
-            topic = '';
-            subject = '';
             const log = chatModel.initChatLog(subject, topic, language);
             log.forEach(prompt => {
                 chatLog.push(prompt);
@@ -83,29 +85,33 @@ export const chat_post = async (req, res) => {
             log.forEach(prompt => {
                 chatLog.push(prompt);
             });
-            await generateChatResponse('');
-            await addToChatHistory(req, subject, topic);
+            await generateChatResponse('', chatLog);
+            await ChatHistoryModel.addToChatHistory(req, subject, topic, chatLog);
         }
-    } else if (curSession >= 0) {
+    } else if (req.body.input != null) {
+        const chatSession = await getUserChatSession(req);
         const userInput = req.body.input;
-    //    const inputPrompt = chatModel.postPromptString(language, subject);
+
+        chatSession.messages.forEach(m => {
+            chatLog.push({
+                role: m.role,
+                content: m.content,
+            })
+        });
         chatLog.push({
             role: 'user',
-            //content: userInput + inputPrompt
             content: userInput
         });
 
-        await generateChatResponse(userInput);
-
-        /* const answer = await chatModel.generateAnswer(chatLog);
-        chatLog.push(answer); */
-
-        await addToChatHistory(req, subject, topic);
+        await generateChatResponse(userInput, chatLog);
+        await ChatHistoryModel.addToChatHistory(req, chatSession.subject, chatSession.topic, chatLog);
+    } else {
+        return res.redirect('/');
     }
     res.redirect('/chat');
 };
 
-async function generateChatResponse(userInput) {
+async function generateChatResponse(userInput, chatLog) {
     try {
         let greeting = '';
         if (userInput !== '') {
@@ -118,7 +124,7 @@ async function generateChatResponse(userInput) {
         const chatCompletion = await chatModel.generateAnswer(chatLog);
         let rLog = '';
         let sentence = '';
- 
+
         for await (const part of chatCompletion) {
             const response = part.choices[0].delta.content;
 
@@ -147,7 +153,7 @@ async function generateChatResponse(userInput) {
             content: greeting + rLog
         });
 
-        console.log(chatLog);
+        return chatLog;
     } catch (error) {
         console.error('Error generating chat completion:', error);
         // Handle the error as needed
@@ -158,16 +164,8 @@ export const chatLookup_post = async (req, res) => {
     try {
         const session = req.body.sessionID;
         const userEmail = req.userEmail;
-        const userChatHistory = await ChatHistoryModel.findBySession(userEmail, session);
-        if (userChatHistory) {
-            curSession = session;
-            subject = userChatHistory.chats[0].subject;
-            topic = userChatHistory.chats[0].topic;
-            chatLog.length = 0;
-            userChatHistory.chats[0].messages.forEach(m => {
-                chatLog.push(m);
-            });
-        }
+
+        await ChatHistoryModel.setChatSession(userEmail, session);
         res.status(200).json({ session });
     }
     catch (errors) {
@@ -260,7 +258,6 @@ export const logout_get = async (req, res) => {
 
 export const language_post = async (req, res) => {
     language = req.body.selectedLanguage;
-    console.log("-+ ", language);
     res.status(202).json({});
 }
 
@@ -293,47 +290,34 @@ const handleErrors = (err) => {
     return errors;
 }
 
-// ------------------------------------------------------------- USE HTTPS!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-async function addToChatHistory(req, subject, topic) {
-    const email = req.userEmail;
-    const chatData = {
-        subject,
-        topic,
-        messages: chatLog,
-    };
-    try {
-        curSession = await ChatHistoryModel.addToChatHistory(email, chatData, curSession);
-        console.log('Chat history updated successfully.');
-    } catch (error) {
-        console.error('Error updating chat history:', error);
-    }
-}
-
-async function fillChatHistory(req) {
-    const userChatHistory = await ChatHistoryModel.findByEmail(req.userEmail);
-    const chats = userChatHistory.chats;
-    chatHistory.length = 0;
-    if (userChatHistory && chats) {
-        chats.forEach(c => {
-            const sessionID = c.sessionID;
-            const subject = c.subject;
-            const topic = c.topic;
-            const createdAt = c.createdAt;
-            chatHistory.push({
-                sessionID,
-                subject,
-                topic,
-                createdAt,
+async function getUserChatHistory(req) {
+    const chatHistory = [];
+    const userChatHistory = req.userChatHistory;
+    if (userChatHistory) {
+        const chats = userChatHistory.chats;
+        if (chats) {
+            chats.forEach(c => {
+                const sessionID = c.sessionID;
+                const subject = c.subject;
+                const topic = c.topic;
+                const createdAt = c.createdAt;
+                chatHistory.push({
+                    sessionID,
+                    subject,
+                    topic,
+                    createdAt,
+                });
             });
-        });
+        }
     }
+    return chatHistory;
 }
 
-function resetChat() {
-    chatLog.length = 0;
-    curSession = -1;
-    subject = '';
-    topic = '';
+async function getUserChatSession(req) {
+    let chatSession = [];
+    const userChatHistory = req.userChatHistory;
+    if (userChatHistory && userChatHistory.chats) {
+        chatSession = userChatHistory.chats[req.user.currentSession];
+    }
+    return chatSession;
 }
