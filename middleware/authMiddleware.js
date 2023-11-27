@@ -31,6 +31,26 @@ const checkUser = (req, res, next) => {
             } else {
                 let user = await User.findById(decodedToken.id);
                 res.locals.user = user;
+                req.user = user;
+                next();
+            }
+        });
+    } else {
+        res.locals.user = null;
+        next();
+    }
+};
+
+// check current user
+const resetUserSession = (req, res, next) => {
+    const token = req.cookies.jwt;
+    if (token) {
+        jwt.verify(token, 'sRkv:C9/h)X@qd4>}JM;=ZtrP#F8QgBT', async (err, decodedToken) => {
+            if (!err) {
+                let user = await User.findById(decodedToken.id);
+                const filter = { _id: user._id };
+                const update = { currentSession: -1 };
+                const result = await User.updateOne(filter, update);
                 next();
             }
         });
@@ -61,4 +81,4 @@ const checkEmail = (req, res, next) => {
 };
 
 
-export { requireAuth, checkUser, checkEmail };
+export { requireAuth, checkUser, checkEmail, resetUserSession };
