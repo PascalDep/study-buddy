@@ -16,6 +16,16 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please enter an password'],
         minlength: [6, 'Minimum password length is 6 characters'],
+    },
+    chatId: {
+        type: String,
+        required: [false],
+        default: ""
+    },
+    currentSession: {
+        type: Number,
+        required: [false],
+        default: -1
     }
 });
 
