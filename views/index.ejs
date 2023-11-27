@@ -12,12 +12,12 @@
           <% if (chatHistory.length> 0) { %>
             <% let hasDisplayedLabel=false; %>
               <% chatHistory.reverse().forEach(entry=> { %>
-                <% if (!hasDisplayedLabel && entry.sessionID===curSession) { %>
+                <% if (!hasDisplayedLabel && entry.sessionID.toString()===curSession.toString()) { %>
                   <div class="history-label">
                     <span class="label-text">
                       <%= entry.subject %> - <%= entry.topic %>
                     </span><br>
-                    <button class="delete-button" data-sessionid="<%= entry.sessionID %>">
+                    <button class="delete-button" dataSessionId="<%= entry.sessionID %>">
                       <img id="deleteButton" src="delete-icon.svg" alt="Delete">
                       <img id="okButton" src="ok-icon.svg" alt="OK" style="display: none;">
                     </button>
@@ -25,7 +25,7 @@
                   <% hasDisplayedLabel=true; %>
                     <% } else { %>
                       <div class="historyButton">
-                        <button class="session-button" data-sessionid="<%= entry.sessionID %>">
+                        <button class="session-button" dataSessionId="<%= entry.sessionID %>">
                           <span class="history-date">
                             <%= entry.createdAt.toLocaleDateString() %>
                           </span><br>
@@ -134,22 +134,22 @@
 
     eventSource.onmessage = (event) => {
       const message = JSON.parse(event.data);
-        if (message.type === 'input') {
-          const inputElement = document.createElement('p');
-          inputElement.classList.add('input');
-          inputElement.textContent = message.content;
-          chatLog.appendChild(inputElement);
-        } else if (message.type === 'answer') {
-          if (!answerElement) {
-            answerElement = document.createElement('p');
-            answerElement.classList.add('answer');
-            answerElement.textContent = message.content;
-          } else {
-            answerElement.textContent += ' ' + message.content;
-          }
-
-          chatLog.appendChild(answerElement);
+      if (message.type === 'input') {
+        const inputElement = document.createElement('p');
+        inputElement.classList.add('input');
+        inputElement.textContent = message.content;
+        chatLog.appendChild(inputElement);
+      } else if (message.type === 'answer') {
+        if (!answerElement) {
+          answerElement = document.createElement('p');
+          answerElement.classList.add('answer');
+          answerElement.textContent = message.content;
+        } else {
+          answerElement.textContent += ' ' + message.content;
         }
+
+        chatLog.appendChild(answerElement);
+      }
 
       chatLog.scrollTop = chatLog.scrollHeight;
     };
@@ -183,8 +183,7 @@
       button.addEventListener('click', async () => {
         disableFormElements(topicInput);
         disableFormElements(chatInput);
-        const sessionID = button.getAttribute('data-sessionid');
-
+        const sessionID = button.getAttribute('dataSessionId');
         try {
           const res = await fetch('/chat/lookup', {
             method: 'POST',
@@ -192,7 +191,6 @@
             headers: { 'Content-Type': 'application/json' }
           });
           const data = await res.json();
-          console.log(data);
           if (data.session) {
             location.assign('/chat');
           } else {
@@ -209,7 +207,7 @@
 
     deleteButtons.forEach(button => {
       button.addEventListener('click', () => {
-        const tempSession = button.getAttribute('data-sessionid'); // Define tempSession here
+        const tempSession = button.getAttribute('dataSessionId'); // Define tempSession here
 
         const deleteIcon = button.querySelector('#deleteButton');
         const okIcon = button.querySelector('#okButton');
