@@ -4,7 +4,7 @@ import ChatHistoryModel from '../models/chatHistory.js';
 import jwt from 'jsonwebtoken';
 import { EventEmitter } from 'events'; // Add this import for EventEmitter
 
-const signupKey = 'Taiwan'
+const signupKey = 'Tschuggmall'
 const userEmitters = new Map();
 let language = 'de';
 
